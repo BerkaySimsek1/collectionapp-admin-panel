@@ -1,25 +1,94 @@
-# CollectionApp Admin Panel
+# 📱 CollectionApp Yönetim Paneli
 
-Bu proje, CollectionApp uygulaması için bir yönetim paneli sağlar. React, TypeScript ve Firebase teknolojileri kullanılarak geliştirilmiştir.
+<div align="center">
+  <img src="https://via.placeholder.com/150" alt="CollectionApp Logo" width="150" height="150">
+  <br>
+  <p><strong>Koleksiyon Uygulaması Yönetim Paneli</strong></p>
+</div>
 
-## Çalıştırma
+## 📋 İçindekiler
 
-Projeyi çalıştırmak için aşağıdaki adımları izleyin:
+- [Proje Hakkında](#-proje-hakkında)
+- [Özellikler](#-özellikler)
+- [Teknolojiler](#-teknolojiler)
+- [Kurulum](#-kurulum)
+- [Kullanım](#-kullanım)
+- [Proje Yapısı](#-proje-yapısı)
+- [API Entegrasyonu](#-api-entegrasyonu)
+- [Katkıda Bulunma](#-katkıda-bulunma)
+- [Lisans](#-lisans)
+- [İletişim](#-iletişim)
 
-```bash
-# Proje dizinine gidin
-cd collectionapp-admin-panel
+## 🚀 Proje Hakkında
 
-# Bağımlılıkları yükleyin
-npm install
+CollectionApp Yönetim Paneli, koleksiyon uygulamasının yönetimi için geliştirilmiş kapsamlı bir admin arayüzüdür. Bu panel sayesinde kullanıcıları, koleksiyonları ve açık artırmaları yönetebilir, detaylı raporlar alabilir ve sistem ayarlarını yapılandırabilirsiniz.
 
-# Geliştirme sunucusunu başlatın
-npm start
-```
+## ✨ Özellikler
 
-Tarayıcınızda [http://localhost:3000](http://localhost:3000) adresine giderek uygulamayı görüntüleyebilirsiniz.
+- **Kullanıcı Yönetimi**: Kullanıcıları görüntüleme, düzenleme ve yönetme
+- **Koleksiyon Yönetimi**: Koleksiyonları ve içeriklerini yönetme
+- **Açık Artırma Yönetimi**: Açık artırmaları izleme ve yönetme
+- **Raporlama**: Detaylı istatistikler ve raporlar
+- **Güvenli Giriş**: Firebase Authentication ile güvenli admin girişi
+- **Duyarlı Tasarım**: Mobil ve masaüstü cihazlarda sorunsuz çalışma
 
-## Giriş Yapma
+## 💻 Teknolojiler
+
+- **Frontend**: React, TypeScript, React Router
+- **Stil**: TailwindCSS
+- **Backend**: Firebase (Authentication, Firestore, Storage, Functions)
+- **State Yönetimi**: React Context API
+- **Deployment**: Firebase Hosting
+
+## 🔧 Kurulum
+
+### Ön Koşullar
+
+- Node.js (v14.0.0 veya üzeri)
+- npm veya yarn
+- Firebase hesabı
+
+### Adımlar
+
+1. Projeyi klonlayın:
+
+   ```bash
+   git clone https://github.com/kullaniciadi/collectionapp-admin-panel.git
+   cd collectionapp-admin-panel
+   ```
+
+2. Bağımlılıkları yükleyin:
+
+   ```bash
+   npm install
+   # veya
+   yarn install
+   ```
+
+3. `.env` dosyasını oluşturun ve Firebase yapılandırma bilgilerinizi ekleyin:
+
+   ```
+   REACT_APP_FIREBASE_API_KEY=your_api_key
+   REACT_APP_FIREBASE_AUTH_DOMAIN=your_auth_domain
+   REACT_APP_FIREBASE_PROJECT_ID=your_project_id
+   REACT_APP_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+   REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+   REACT_APP_FIREBASE_APP_ID=your_app_id
+   ```
+
+4. Geliştirme sunucusunu başlatın:
+
+   ```bash
+   npm start
+   # veya
+   yarn start
+   ```
+
+5. Tarayıcınızda [http://localhost:3000](http://localhost:3000) adresine giderek uygulamayı görüntüleyin.
+
+## 📖 Kullanım
+
+### Giriş Yapma
 
 Giriş yapmak için, Firebase'de admin koleksiyonunda kayıtlı bir e-posta adresi ve şifre kullanmanız gerekmektedir. Admin koleksiyonu şu yapıdadır:
 
@@ -30,42 +99,63 @@ admin -> uid -> {
 }
 ```
 
-## Özellikler
+### Kullanıcı Yönetimi
 
-- Kullanıcı yönetimi
-- Koleksiyon yönetimi
-- İçerik moderasyonu
-- İstatistikler ve raporlar
-- Sistem ayarları
+- Tüm kullanıcıları görüntüleme
+- Kullanıcı detaylarını inceleme
+- Kullanıcı hesaplarını yönetme (askıya alma, silme)
 
-## Kurulum
+### Koleksiyon Yönetimi
 
-```bash
-# Bağımlılıkları yükleyin
-npm install
+- Koleksiyonları görüntüleme ve düzenleme
+- Yeni koleksiyon öğeleri ekleme
+- Koleksiyon öğelerini onaylama veya reddetme
 
-# Geliştirme sunucusunu başlatın
-npm start
+### Raporlar
+
+- Kullanıcı aktivite raporları
+- Koleksiyon istatistikleri
+- Açık artırma performans raporları
+
+## 📁 Proje Yapısı
+
+```
+src/
+├── components/       # Yeniden kullanılabilir UI bileşenleri
+├── context/          # React context'leri
+├── hooks/            # Özel React hook'ları
+├── pages/            # Sayfa bileşenleri
+├── services/         # Firebase ve diğer servisler
+├── types/            # TypeScript tipleri
+├── utils/            # Yardımcı fonksiyonlar
+├── App.tsx           # Ana uygulama bileşeni
+└── index.tsx         # Giriş noktası
 ```
 
-## Yapı
+## 🔌 API Entegrasyonu
 
-- `src/components`: Yeniden kullanılabilir UI bileşenleri
-- `src/pages`: Sayfa bileşenleri
-- `src/services`: Firebase ve diğer servisler
-- `src/hooks`: Özel React hook'ları
-- `src/types`: TypeScript tipleri
-- `src/utils`: Yardımcı fonksiyonlar
-- `src/context`: React context'leri
+Bu yönetim paneli, Firebase Firestore veritabanı ile entegre çalışır. Veritabanı yapısı şu şekildedir:
 
-## Teknolojiler
+- **users**: Kullanıcı bilgileri
+- **collections**: Koleksiyon bilgileri
+- **items**: Koleksiyon öğeleri
+- **auctions**: Açık artırma bilgileri
+- **admin**: Admin kullanıcıları
 
-- React
-- TypeScript
-- Firebase (Authentication, Firestore, Storage)
-- React Router
-- Styled Components
+## 🤝 Katkıda Bulunma
 
-## Lisans
+1. Projeyi fork edin
+2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
+3. Değişikliklerinizi commit edin (`git commit -m 'Add some amazing feature'`)
+4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
+5. Pull Request açın
 
-Bu proje özel lisans altında dağıtılmaktadır.
+## 📄 Lisans
+
+Bu proje özel lisans altında dağıtılmaktadır. Tüm hakları saklıdır.
+
+## 📞 İletişim
+
+Proje Sahibi - [email@example.com](mailto:email@example.com)
+
+Proje Linki: [https://github.com/kullaniciadi/collectionapp-admin-panel](https://github.com/kullaniciadi/collectionapp-admin-panel)
