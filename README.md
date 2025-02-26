@@ -130,30 +130,4 @@ src/
 └── index.tsx         # Giriş noktası
 ```
 
-## 🔌 API Entegrasyonu
 
-Bu yönetim paneli, Firebase Firestore veritabanı ile entegre çalışır. Veritabanı yapısı şu şekildedir:
-
-- **users**: Kullanıcı bilgileri
-- **collections**: Koleksiyon bilgileri
-- **items**: Koleksiyon öğeleri
-- **auctions**: Açık artırma bilgileri
-- **admin**: Admin kullanıcıları
-
-## 🤝 Katkıda Bulunma
-
-1. Projeyi fork edin
-2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Değişikliklerinizi commit edin (`git commit -m 'Add some amazing feature'`)
-4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
-5. Pull Request açın
-
-## 📄 Lisans
-
-Bu proje özel lisans altında dağıtılmaktadır. Tüm hakları saklıdır.
-
-## 📞 İletişim
-
-Proje Sahibi - [email@example.com](mailto:email@example.com)
-
-Proje Linki: [https://github.com/kullaniciadi/collectionapp-admin-panel](https://github.com/kullaniciadi/collectionapp-admin-panel)
