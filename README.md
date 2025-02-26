@@ -1,46 +1,71 @@
-# Getting Started with Create React App
+# CollectionApp Admin Panel
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Bu proje, CollectionApp uygulaması için bir yönetim paneli sağlar. React, TypeScript ve Firebase teknolojileri kullanılarak geliştirilmiştir.
 
-## Available Scripts
+## Çalıştırma
 
-In the project directory, you can run:
+Projeyi çalıştırmak için aşağıdaki adımları izleyin:
 
-### `npm start`
+```bash
+# Proje dizinine gidin
+cd collectionapp-admin-panel
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+# Bağımlılıkları yükleyin
+npm install
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+# Geliştirme sunucusunu başlatın
+npm start
+```
 
-### `npm test`
+Tarayıcınızda [http://localhost:3000](http://localhost:3000) adresine giderek uygulamayı görüntüleyebilirsiniz.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Giriş Yapma
 
-### `npm run build`
+Giriş yapmak için, Firebase'de admin koleksiyonunda kayıtlı bir e-posta adresi ve şifre kullanmanız gerekmektedir. Admin koleksiyonu şu yapıdadır:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
+admin -> uid -> {
+  adminId: string,
+  adminMail: string
+}
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Özellikler
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- Kullanıcı yönetimi
+- Koleksiyon yönetimi
+- İçerik moderasyonu
+- İstatistikler ve raporlar
+- Sistem ayarları
 
-### `npm run eject`
+## Kurulum
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```bash
+# Bağımlılıkları yükleyin
+npm install
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# Geliştirme sunucusunu başlatın
+npm start
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Yapı
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+- `src/components`: Yeniden kullanılabilir UI bileşenleri
+- `src/pages`: Sayfa bileşenleri
+- `src/services`: Firebase ve diğer servisler
+- `src/hooks`: Özel React hook'ları
+- `src/types`: TypeScript tipleri
+- `src/utils`: Yardımcı fonksiyonlar
+- `src/context`: React context'leri
 
-## Learn More
+## Teknolojiler
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- React
+- TypeScript
+- Firebase (Authentication, Firestore, Storage)
+- React Router
+- Styled Components
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Lisans
+
+Bu proje özel lisans altında dağıtılmaktadır.
