@@ -1,8 +1,6 @@
 # 📱 CollectionApp Yönetim Paneli
 
 <div align="center">
-  <img src="https://via.placeholder.com/150" alt="CollectionApp Logo" width="150" height="150">
-  <br>
   <p><strong>Koleksiyon Uygulaması Yönetim Paneli</strong></p>
 </div>
 
