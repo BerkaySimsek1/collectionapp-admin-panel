@@ -1,7 +1,13 @@
 // Admin tipi
 export interface Admin {
-  adminId: string;
+  uid?: string;
   adminMail: string;
+  adminName?: string;
+  photoURL?: string;
+  role?: string;
+  permissions?: string[];
+  createdAt?: Date | any;
+  lastLogin?: Date | any;
 }
 
 // Kullanıcı tipi
@@ -29,18 +35,29 @@ export interface User {
   followingCount?: number;
 }
 
+// Bid (Teklif) tipi
+export interface Bid {
+  userId: string;
+  amount: number;
+  timestamp: number | string;
+  userInfo?: User;
+}
+
 // Açık Artırma tipi
 export interface Auction {
   id: string;
-  title: string;
+  name: string;
   description: string;
   startingPrice: number;
-  currentPrice: number;
-  startDate: string;
-  endDate: string;
-  status: 'active' | 'completed' | 'cancelled';
-  createdBy: string;
-  images: string[];
+  creatorId: string;
+  bidderId: string;
+  endTime: number | string | Date;
+  imageUrls: string[];
+  isAuctionEnd: boolean;
+  bidHistory: Bid[];
+  createdAt?: number | string | Date;
+  creator?: User;
+  currentBidder?: User;
 }
 
 // Kullanıcı Grubu tipi

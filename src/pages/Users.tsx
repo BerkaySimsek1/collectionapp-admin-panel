@@ -255,18 +255,27 @@ const Users: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
-                            {user.photoURL ? (
+                            {user.photoURL && user.photoURL.trim() !== "" ? (
                               <img
-                                className="h-10 w-10 rounded-full"
+                                className="h-10 w-10 rounded-full object-cover"
                                 src={user.photoURL}
                                 alt={user.displayName || "User"}
+                                onError={(e) => {
+                                  console.log(
+                                    "Resim yüklenemedi, varsayılan resim kullanılıyor"
+                                  );
+                                  e.currentTarget.src =
+                                    "https://via.placeholder.com/40?text=U";
+                                  e.currentTarget.onerror = null;
+                                }}
                               />
                             ) : (
-                              <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                                <span className="text-gray-600 font-medium">
+                              <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                                <span className="text-indigo-800 font-medium">
                                   {user.displayName
                                     ? user.displayName.charAt(0).toUpperCase()
-                                    : user.email?.charAt(0).toUpperCase()}
+                                    : user.email?.charAt(0).toUpperCase() ||
+                                      "U"}
                                 </span>
                               </div>
                             )}

@@ -47,6 +47,16 @@ const UserDetail: React.FC = () => {
         const userRef = await getUserById(id);
         console.log("Alınan kullanıcı verisi:", userRef);
 
+        // Debug için kullanıcı verisi
+        if (userRef) {
+          console.log("Kullanıcı Profil Resmi URL:", userRef.photoURL);
+          console.log(
+            "Kullanıcı Profil Resmi URL tipi:",
+            typeof userRef.photoURL
+          );
+          console.log("Kullanıcı tam verisi:", JSON.stringify(userRef));
+        }
+
         if (!userRef) {
           console.error("Kullanıcı bulunamadı:", id);
           setError("Kullanıcı bulunamadı.");
@@ -241,21 +251,30 @@ const UserDetail: React.FC = () => {
             <h1 className="text-2xl font-semibold text-gray-900">
               Kullanıcı Detayları
             </h1>
+            {/* Debug bilgisi */}
+            <div className="text-xs text-gray-500 mt-1">
+              Profil URL: {user.photoURL || "Yok"}
+            </div>
           </div>
 
           <div className="bg-white shadow overflow-hidden sm:rounded-lg">
             <div className="flex items-center justify-between px-4 py-5 sm:px-6">
               <div className="flex items-center">
                 <div className="flex-shrink-0 h-12 w-12">
-                  {user.photoURL ? (
+                  {user.photoURL && user.photoURL.trim() !== "" ? (
                     <img
-                      className="h-12 w-12 rounded-full"
+                      className="h-12 w-12 rounded-full object-cover"
                       src={user.photoURL}
                       alt={user.displayName || "Kullanıcı"}
+                      onError={(e) => {
+                        e.currentTarget.src =
+                          "https://via.placeholder.com/150?text=U";
+                        e.currentTarget.onerror = null;
+                      }}
                     />
                   ) : (
-                    <div className="h-12 w-12 rounded-full bg-gray-300 flex items-center justify-center">
-                      <span className="text-xl text-gray-600 font-medium">
+                    <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center">
+                      <span className="text-xl text-indigo-800 font-medium">
                         {user.displayName
                           ? user.displayName.charAt(0).toUpperCase()
                           : user.email
@@ -408,6 +427,28 @@ const UserDetail: React.FC = () => {
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                     {formatDate(user.lastActive)}
+                  </dd>
+                </div>
+                <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt className="text-sm font-medium text-gray-500">
+                    Debug Test - Profil Resmi
+                  </dt>
+                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    {user.photoURL ? (
+                      <>
+                        <div>URL: {user.photoURL}</div>
+                        <img
+                          src={user.photoURL}
+                          alt="Test profil"
+                          className="h-16 w-16 rounded-full mt-2"
+                          onError={() =>
+                            console.log("Test resim yüklenirken hata oluştu")
+                          }
+                        />
+                      </>
+                    ) : (
+                      "Profil resmi URL'si yok"
+                    )}
                   </dd>
                 </div>
               </dl>

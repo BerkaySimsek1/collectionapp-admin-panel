@@ -13,6 +13,8 @@ import {
   register,
   getCurrentUser,
 } from "../services/authService";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../firebase";
 
 // Context tipi tanımı
 interface AuthContextType {
@@ -49,8 +51,77 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     // Auth durumunu izleme
-    const unsubscribe = onAuthStateChange((user) => {
-      setCurrentUser(user);
+    const unsubscribe = onAuthStateChange(async (user) => {
+      if (user) {
+        try {
+          // Admin koleksiyonundan ek bilgileri al
+          const adminRef = doc(db, "admin", user.uid);
+          const adminSnap = await getDoc(adminRef);
+
+          if (adminSnap.exists()) {
+            const adminData = adminSnap.data();
+
+            // Firebase User nesnesini doğrudan değiştiremeyiz,
+            // bu yüzden geçici bir nesne oluşturup onu döndürüyoruz
+            const enhancedUser = { ...user };
+
+            // Profil fotoğrafı yoksa admin koleksiyonundan al
+            if (!user.photoURL && adminData.photoURL) {
+              Object.defineProperty(enhancedUser, "photoURL", {
+                value: adminData.photoURL,
+                writable: true,
+              });
+              console.log("Admin fotoğrafı yüklendi:", adminData.photoURL);
+            } else if (!user.photoURL) {
+              // Varsayılan profil fotoğrafı
+              Object.defineProperty(enhancedUser, "photoURL", {
+                value: "https://via.placeholder.com/150?text=Admin",
+                writable: true,
+              });
+              console.log("Varsayılan admin fotoğrafı atandı");
+            }
+
+            // Ekran adı yoksa admin koleksiyonundan al
+            if (!user.displayName && adminData.adminName) {
+              Object.defineProperty(enhancedUser, "displayName", {
+                value: adminData.adminName,
+                writable: true,
+              });
+              console.log("Admin adı yüklendi:", adminData.adminName);
+            }
+
+            setCurrentUser(enhancedUser);
+          } else {
+            // Admin koleksiyonunda veri yoksa bile varsayılan profil fotoğrafını ayarla
+            if (!user.photoURL) {
+              const enhancedUser = { ...user };
+              Object.defineProperty(enhancedUser, "photoURL", {
+                value: "https://via.placeholder.com/150?text=Admin",
+                writable: true,
+              });
+              setCurrentUser(enhancedUser);
+              console.log(
+                "Admin verisi bulunamadı, varsayılan fotoğraf atandı"
+              );
+            } else {
+              setCurrentUser(user);
+            }
+          }
+        } catch (error) {
+          console.error("Admin verisi yüklenirken hata:", error);
+          // Herhangi bir hata durumunda orijinal kullanıcı nesnesini kullan
+          const enhancedUser = { ...user };
+          if (!user.photoURL) {
+            Object.defineProperty(enhancedUser, "photoURL", {
+              value: "https://via.placeholder.com/150?text=Admin",
+              writable: true,
+            });
+          }
+          setCurrentUser(enhancedUser);
+        }
+      } else {
+        setCurrentUser(null);
+      }
       setLoading(false);
     });
 

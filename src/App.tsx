@@ -10,6 +10,10 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
 import UserDetail from "./pages/UserDetail";
+import AuctionsPage from "./pages/AuctionsPage";
+import AuctionDetailPage from "./pages/AuctionDetailPage";
+import GroupsPage from "./pages/GroupsPage";
+import GroupDetailPage from "./pages/GroupDetailPage";
 import "./App.css";
 import PrivateRoute from "./components/PrivateRoute";
 
@@ -54,7 +58,34 @@ const App: React.FC = () => {
             path="/auctions"
             element={
               <PrivateRoute>
-                <div>Açık Artırmalar Sayfası (Yapım Aşamasında)</div>
+                <AuctionsPage />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/auctions/:id"
+            element={
+              <PrivateRoute>
+                <AuctionDetailPage />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/groups"
+            element={
+              <PrivateRoute>
+                <GroupsPage />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/groups/:id"
+            element={
+              <PrivateRoute>
+                <GroupDetailPage />
               </PrivateRoute>
             }
           />

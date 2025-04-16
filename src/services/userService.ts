@@ -3,6 +3,16 @@ import { db } from '../firebase';
 import { User, Auction, UserGroup } from '../types';
 
 /**
+ * URL'nin geçerli olup olmadığını kontrol eden yardımcı fonksiyon
+ */
+const isValidImageUrl = (url: string | null | undefined): boolean => {
+  if (!url) return false;
+  if (url.trim() === "") return false;
+  
+  return true; // Tüm URL'leri geçerli kabul et, hata durumu img onError ile yakalanacak
+};
+
+/**
  * Get all users with pagination
  * @param pageSize Number of users to retrieve
  * @param lastDocIndex Last document for pagination
@@ -46,11 +56,34 @@ export const getAllUsers = async (pageSize = 10, lastDocIndex: number | null = n
           lastActive = userData.last_active.toDate?.() || userData.last_active;
         }
         
+        // Profil fotoğrafı kontrolü - farklı alanlarda olabilir
+        let photoURL = "";
+        
+        // Önce photoURL kontrolü
+        if (userData.photoURL) {
+          photoURL = userData.photoURL;
+        }
+        // Sonra profileImageUrl kontrolü
+        else if (userData.profileImageUrl) {
+          photoURL = userData.profileImageUrl;
+        }
+        // Sonra profilePic kontrolü
+        else if (userData.profilePic) {
+          photoURL = userData.profilePic;
+        }
+        // Sonra photo ya da picture alanları
+        else if (userData.photo) {
+          photoURL = userData.photo;
+        }
+        else if (userData.picture) {
+          photoURL = userData.picture;
+        }
+        
         const user: User = {
           uid: docSnapshot.id,
           email: userData.email || "",
           displayName: userData.displayName || userData.username || "",
-          photoURL: userData.photoURL || "",
+          photoURL: photoURL,
           isActive: userData.isActive !== false, // varsayılan olarak true
           isBanned: userData.isBanned === true,
           createdAt: createdAt || new Date(),
@@ -100,6 +133,47 @@ export const getAllUsers = async (pageSize = 10, lastDocIndex: number | null = n
   }
 };
 
+// Kullanıcı verisinde profil fotoğrafı kontrolü - değişik alanlarda olabilir
+const getProfileImageUrl = (userData: any): string => {
+  if (!userData) return "";
+  
+  console.log("getProfileImageUrl - Ham kullanıcı verisi alanları:", Object.keys(userData));
+  
+  // Sırasıyla tüm olası profil fotoğrafı alanlarını kontrol et
+  if (userData.photoURL && userData.photoURL.trim() !== "") {
+    console.log("photoURL bulundu:", userData.photoURL);
+    return userData.photoURL;
+  }
+  
+  if (userData.profileImageUrl && userData.profileImageUrl.trim() !== "") {
+    console.log("profileImageUrl bulundu:", userData.profileImageUrl);
+    return userData.profileImageUrl;
+  }
+  
+  if (userData.profilePic && userData.profilePic.trim() !== "") {
+    console.log("profilePic bulundu:", userData.profilePic);
+    return userData.profilePic;
+  }
+  
+  if (userData.photo && userData.photo.trim() !== "") {
+    console.log("photo bulundu:", userData.photo);
+    return userData.photo;
+  }
+  
+  if (userData.picture && userData.picture.trim() !== "") {
+    console.log("picture bulundu:", userData.picture);
+    return userData.picture;
+  }
+  
+  if (userData.avatar && userData.avatar.trim() !== "") {
+    console.log("avatar bulundu:", userData.avatar);
+    return userData.avatar;
+  }
+  
+  console.log("Hiçbir profil fotoğrafı alanı bulunamadı");
+  return "";
+};
+
 /**
  * Get user by ID
  * @param uid User ID
@@ -131,6 +205,9 @@ export const getUserById = async (uid: string): Promise<User | null> => {
       console.error(`Kullanıcı verisi boş: ${uid}`);
       return null;
     }
+    
+    // Profil fotoğrafı kontrolü - farklı alanlarda olabilir
+    const photoURL = getProfileImageUrl(userData);
     
     // Tarih alanlarını kontrol et
     let createdAt = null;
@@ -169,7 +246,7 @@ export const getUserById = async (uid: string): Promise<User | null> => {
         uid: userSnapshot.id,
         email: userData.email || "",
         displayName: userData.displayName || userData.username || "",
-        photoURL: userData.photoURL || "",
+        photoURL: photoURL,
         isActive: userData.isActive !== false,
         isBanned: userData.isBanned === true,
         createdAt: createdAt || new Date(),
@@ -290,29 +367,74 @@ export const getNewUsersCount = async (): Promise<number> => {
 export const getUserAuctions = async (uid: string): Promise<Auction[]> => {
   try {
     const auctionsRef = collection(db, 'auctions');
-    const q = query(auctionsRef, where('createdBy', '==', uid));
+    const q = query(auctionsRef, where('creator_id', '==', uid));
     const querySnapshot = await getDocs(q);
     
     const auctions: Auction[] = [];
-    querySnapshot.forEach((doc) => {
-      const auctionData = doc.data();
-      auctions.push({
-        id: doc.id,
-        title: auctionData.title || '',
-        description: auctionData.description || '',
-        startingPrice: auctionData.startingPrice || 0,
-        currentPrice: auctionData.currentPrice || 0,
-        startDate: auctionData.startDate ? 
-          (typeof auctionData.startDate.toDate === 'function' ? auctionData.startDate.toDate().toISOString() : auctionData.startDate) 
-          : '',
-        endDate: auctionData.endDate ? 
-          (typeof auctionData.endDate.toDate === 'function' ? auctionData.endDate.toDate().toISOString() : auctionData.endDate) 
-          : '',
-        status: auctionData.status || 'active',
-        createdBy: auctionData.createdBy || '',
-        images: auctionData.images || []
-      } as Auction);
-    });
+    
+    for (const docSnapshot of querySnapshot.docs) {
+      const auctionData = docSnapshot.data();
+      
+      // Kullanıcı bilgilerini eklemek için
+      let creatorData = null;
+      let bidderData = null;
+      
+      // Oluşturan kullanıcının bilgilerini getir
+      if (auctionData.creator_id) {
+        const creatorDoc = await getDoc(doc(db, 'users', auctionData.creator_id));
+        if (creatorDoc.exists()) {
+          creatorData = creatorDoc.data() as User;
+        }
+      }
+      
+      // Son teklif veren kullanıcının bilgilerini getir
+      if (auctionData.bidder_id && auctionData.bidder_id !== "") {
+        const bidderDoc = await getDoc(doc(db, 'users', auctionData.bidder_id));
+        if (bidderDoc.exists()) {
+          bidderData = bidderDoc.data() as User;
+        }
+      }
+      
+      // Teklif geçmişindeki kullanıcıların bilgilerini getir
+      const bidHistory = auctionData.bid_history ? await Promise.all(
+        auctionData.bid_history.map(async (bid: any) => {
+          let userInfo = undefined;
+          
+          if (bid.user_id) {
+            const userDoc = await getDoc(doc(db, 'users', bid.user_id));
+            if (userDoc.exists()) {
+              userInfo = userDoc.data() as User;
+            }
+          }
+          
+          return {
+            userId: bid.user_id || "",
+            amount: bid.amount || 0,
+            timestamp: bid.timestamp || 0,
+            userInfo
+          };
+        })
+      ) : [];
+      
+      // Auction nesnesini oluştur
+      const auction: Auction = {
+        id: docSnapshot.id,
+        name: auctionData.name || "",
+        description: auctionData.description || "",
+        startingPrice: auctionData.starting_price || 0,
+        creatorId: auctionData.creator_id || "",
+        bidderId: auctionData.bidder_id || "",
+        endTime: auctionData.end_time || 0,
+        imageUrls: auctionData.image_urls || [],
+        isAuctionEnd: auctionData.isAuctionEnd || false,
+        bidHistory: bidHistory,
+        createdAt: auctionData.created_at || 0,
+        creator: creatorData || undefined,
+        currentBidder: bidderData || undefined
+      };
+      
+      auctions.push(auction);
+    }
     
     return auctions;
   } catch (error) {

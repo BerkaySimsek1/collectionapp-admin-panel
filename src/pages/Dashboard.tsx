@@ -340,6 +340,11 @@ const Dashboard: React.FC = () => {
                                 className="h-8 w-8 rounded-full mr-3"
                                 src={activity.userPhoto}
                                 alt={activity.userName}
+                                onError={(e) => {
+                                  e.currentTarget.src =
+                                    "https://via.placeholder.com/32?text=User";
+                                  e.currentTarget.onerror = null;
+                                }}
                               />
                             ) : (
                               <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center mr-3">

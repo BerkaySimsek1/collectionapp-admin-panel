@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { auth } from "../firebase";
 import { signOut } from "firebase/auth";
+import { useAuth } from "../context/AuthContext";
 
 /**
  * Main layout component for the admin panel
@@ -9,6 +10,7 @@ import { signOut } from "firebase/auth";
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { currentUser } = useAuth();
 
   const handleSignOut = async () => {
     try {
@@ -108,11 +110,36 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               className="flex-shrink-0 group block w-full"
             >
               <div className="flex items-center">
-                <div>
-                  <i className="fas fa-sign-out-alt text-indigo-300 text-xl"></i>
+                <div className="flex-shrink-0 h-8 w-8">
+                  {currentUser?.photoURL &&
+                  currentUser.photoURL.trim() !== "" ? (
+                    <img
+                      className="h-8 w-8 rounded-full object-cover"
+                      src={currentUser.photoURL}
+                      alt={currentUser.displayName || "Admin User"}
+                      onError={(e) => {
+                        e.currentTarget.src =
+                          "https://via.placeholder.com/32?text=U";
+                        e.currentTarget.onerror = null;
+                      }}
+                    />
+                  ) : (
+                    <div className="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center">
+                      <span className="text-xs text-white font-medium">
+                        {currentUser?.displayName
+                          ? currentUser.displayName.charAt(0).toUpperCase()
+                          : currentUser?.email
+                          ? currentUser.email.charAt(0).toUpperCase()
+                          : "U"}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <div className="ml-3">
-                  <p className="text-base font-medium text-white">Sign Out</p>
+                  <p className="text-base font-medium text-white">
+                    {currentUser?.displayName || currentUser?.email || "Admin"}
+                  </p>
+                  <p className="text-xs text-indigo-300">Sign Out</p>
                 </div>
               </div>
             </button>
@@ -156,11 +183,38 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 className="flex-shrink-0 w-full group block"
               >
                 <div className="flex items-center">
-                  <div>
-                    <i className="fas fa-sign-out-alt text-indigo-300 text-xl"></i>
+                  <div className="flex-shrink-0 h-8 w-8">
+                    {currentUser?.photoURL &&
+                    currentUser.photoURL.trim() !== "" ? (
+                      <img
+                        className="h-8 w-8 rounded-full object-cover"
+                        src={currentUser.photoURL}
+                        alt={currentUser.displayName || "Admin User"}
+                        onError={(e) => {
+                          e.currentTarget.src =
+                            "https://via.placeholder.com/32?text=U";
+                          e.currentTarget.onerror = null;
+                        }}
+                      />
+                    ) : (
+                      <div className="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center">
+                        <span className="text-xs text-white font-medium">
+                          {currentUser?.displayName
+                            ? currentUser.displayName.charAt(0).toUpperCase()
+                            : currentUser?.email
+                            ? currentUser.email.charAt(0).toUpperCase()
+                            : "U"}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm font-medium text-white">Sign Out</p>
+                    <p className="text-sm font-medium text-white">
+                      {currentUser?.displayName ||
+                        currentUser?.email ||
+                        "Admin"}
+                    </p>
+                    <p className="text-xs text-indigo-300">Sign Out</p>
                   </div>
                 </div>
               </button>
