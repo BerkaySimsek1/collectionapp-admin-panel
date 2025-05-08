@@ -65,7 +65,14 @@ export const getAllAuctions = async (): Promise<Auction[]> => {
       try {
         const userDoc = await getDoc(doc(db, 'users', userId));
         if (userDoc.exists()) {
-          userCache[userId] = userDoc.data() as User;
+          const userData = userDoc.data();
+          userCache[userId] = {
+            uid: userDoc.id,
+            email: userData.email || "",
+            displayName: `${userData.firstName || ""} ${userData.lastName || ""}`.trim() || userData.email || "Unknown User",
+            photoURL: userData.profileImageUrl || "https://via.placeholder.com/150?text=U",
+            ...userData
+          } as User;
         }
       } catch (error) {
         console.error(`Kullanıcı bilgisi alınamadı: ${userId}`, error);
@@ -154,7 +161,14 @@ export const getActiveAuctions = async (): Promise<Auction[]> => {
       try {
         const userDoc = await getDoc(doc(db, 'users', userId));
         if (userDoc.exists()) {
-          userCache[userId] = userDoc.data() as User;
+          const userData = userDoc.data();
+          userCache[userId] = {
+            uid: userDoc.id,
+            email: userData.email || "",
+            displayName: `${userData.firstName || ""} ${userData.lastName || ""}`.trim() || userData.email || "Unknown User",
+            photoURL: userData.profileImageUrl || "https://via.placeholder.com/150?text=U",
+            ...userData
+          } as User;
         }
       } catch (error) {
         console.error(`Kullanıcı bilgisi alınamadı: ${userId}`, error);
@@ -271,7 +285,14 @@ export const getEndedAuctions = async (): Promise<Auction[]> => {
       try {
         const userDoc = await getDoc(doc(db, 'users', userId));
         if (userDoc.exists()) {
-          userCache[userId] = userDoc.data() as User;
+          const userData = userDoc.data();
+          userCache[userId] = {
+            uid: userDoc.id,
+            email: userData.email || "",
+            displayName: `${userData.firstName || ""} ${userData.lastName || ""}`.trim() || userData.email || "Unknown User",
+            photoURL: userData.profileImageUrl || "https://via.placeholder.com/150?text=U",
+            ...userData
+          } as User;
         }
       } catch (error) {
         console.error(`Kullanıcı bilgisi alınamadı: ${userId}`, error);
@@ -414,11 +435,14 @@ export const getAuctionById = async (auctionId: string): Promise<Auction | null>
     if (auctionData.creator_id) {
       const creatorDoc = await getDoc(doc(db, 'users', auctionData.creator_id));
       if (creatorDoc.exists()) {
-        creatorData = creatorDoc.data() as User;
-        // Profil resmi yoksa varsayılan resim ekle
-        if (!creatorData.photoURL) {
-          creatorData.photoURL = "https://via.placeholder.com/150?text=User";
-        }
+        const creatorUserData = creatorDoc.data();
+        creatorData = {
+          uid: creatorDoc.id,
+          email: creatorUserData.email || "",
+          displayName: `${creatorUserData.firstName || ""} ${creatorUserData.lastName || ""}`.trim() || creatorUserData.email || "Unknown User",
+          photoURL: creatorUserData.profileImageUrl || "https://via.placeholder.com/150?text=U",
+          ...creatorUserData
+        } as User;
       }
     }
     
@@ -426,11 +450,14 @@ export const getAuctionById = async (auctionId: string): Promise<Auction | null>
     if (auctionData.bidder_id && auctionData.bidder_id !== "") {
       const bidderDoc = await getDoc(doc(db, 'users', auctionData.bidder_id));
       if (bidderDoc.exists()) {
-        bidderData = bidderDoc.data() as User;
-        // Profil resmi yoksa varsayılan resim ekle
-        if (!bidderData.photoURL) {
-          bidderData.photoURL = "https://via.placeholder.com/150?text=User";
-        }
+        const bidderUserData = bidderDoc.data();
+        bidderData = {
+          uid: bidderDoc.id,
+          email: bidderUserData.email || "",
+          displayName: `${bidderUserData.firstName || ""} ${bidderUserData.lastName || ""}`.trim() || bidderUserData.email || "Unknown User",
+          photoURL: bidderUserData.profileImageUrl || "https://via.placeholder.com/150?text=U",
+          ...bidderUserData
+        } as User;
       }
     }
     
@@ -442,11 +469,14 @@ export const getAuctionById = async (auctionId: string): Promise<Auction | null>
         if (bid.user_id) {
           const userDoc = await getDoc(doc(db, 'users', bid.user_id));
           if (userDoc.exists()) {
-            userInfo = userDoc.data() as User;
-            // Profil resmi yoksa varsayılan resim ekle
-            if (!userInfo.photoURL) {
-              userInfo.photoURL = "https://via.placeholder.com/150?text=User";
-            }
+            const userData = userDoc.data();
+            userInfo = {
+              uid: userDoc.id,
+              email: userData.email || "",
+              displayName: `${userData.firstName || ""} ${userData.lastName || ""}`.trim() || userData.email || "Unknown User",
+              photoURL: userData.profileImageUrl || "https://via.placeholder.com/150?text=U",
+              ...userData
+            } as User;
           }
         }
         
@@ -509,11 +539,14 @@ export const getAuctionsByUserId = async (userId: string): Promise<Auction[]> =>
       if (auctionData.creator_id) {
         const creatorDoc = await getDoc(doc(db, 'users', auctionData.creator_id));
         if (creatorDoc.exists()) {
-          creatorData = creatorDoc.data() as User;
-          // Profil resmi yoksa varsayılan resim ekle
-          if (!creatorData.photoURL) {
-            creatorData.photoURL = "https://via.placeholder.com/150?text=User";
-          }
+          const creatorUserData = creatorDoc.data();
+          creatorData = {
+            uid: creatorDoc.id,
+            email: creatorUserData.email || "",
+            displayName: `${creatorUserData.firstName || ""} ${creatorUserData.lastName || ""}`.trim() || creatorUserData.email || "Unknown User",
+            photoURL: creatorUserData.profileImageUrl || "https://via.placeholder.com/150?text=U",
+            ...creatorUserData
+          } as User;
         }
       }
       
@@ -521,11 +554,14 @@ export const getAuctionsByUserId = async (userId: string): Promise<Auction[]> =>
       if (auctionData.bidder_id && auctionData.bidder_id !== "") {
         const bidderDoc = await getDoc(doc(db, 'users', auctionData.bidder_id));
         if (bidderDoc.exists()) {
-          bidderData = bidderDoc.data() as User;
-          // Profil resmi yoksa varsayılan resim ekle
-          if (!bidderData.photoURL) {
-            bidderData.photoURL = "https://via.placeholder.com/150?text=User";
-          }
+          const bidderUserData = bidderDoc.data();
+          bidderData = {
+            uid: bidderDoc.id,
+            email: bidderUserData.email || "",
+            displayName: `${bidderUserData.firstName || ""} ${bidderUserData.lastName || ""}`.trim() || bidderUserData.email || "Unknown User",
+            photoURL: bidderUserData.profileImageUrl || "https://via.placeholder.com/150?text=U",
+            ...bidderUserData
+          } as User;
         }
       }
       
@@ -537,11 +573,14 @@ export const getAuctionsByUserId = async (userId: string): Promise<Auction[]> =>
           if (bid.user_id) {
             const userDoc = await getDoc(doc(db, 'users', bid.user_id));
             if (userDoc.exists()) {
-              userInfo = userDoc.data() as User;
-              // Profil resmi yoksa varsayılan resim ekle
-              if (!userInfo.photoURL) {
-                userInfo.photoURL = "https://via.placeholder.com/150?text=User";
-              }
+              const userData = userDoc.data();
+              userInfo = {
+                uid: userDoc.id,
+                email: userData.email || "",
+                displayName: `${userData.firstName || ""} ${userData.lastName || ""}`.trim() || userData.email || "Unknown User",
+                photoURL: userData.profileImageUrl || "https://via.placeholder.com/150?text=U",
+                ...userData
+              } as User;
             }
           }
           

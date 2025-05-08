@@ -257,31 +257,34 @@ const AuctionDetailPage: React.FC = () => {
                     </h3>
                     {auction.creator ? (
                       <div className="mt-4 flex items-center space-x-3">
-                        {auction.creator.photoURL &&
-                        auction.creator.photoURL.trim() !== "" ? (
-                          <img
-                            src={auction.creator.photoURL}
-                            alt={auction.creator.displayName || "User"}
-                            className="h-10 w-10 rounded-full"
-                            onError={(e) => {
-                              e.currentTarget.src =
-                                "https://via.placeholder.com/40?text=U";
-                              e.currentTarget.onerror = null;
-                            }}
-                          />
-                        ) : (
-                          <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                            <span className="text-indigo-800 font-medium">
-                              {auction.creator.displayName
-                                ? auction.creator.displayName
-                                    .charAt(0)
-                                    .toUpperCase()
-                                : auction.creator.email
-                                ? auction.creator.email.charAt(0).toUpperCase()
-                                : "U"}
-                            </span>
-                          </div>
-                        )}
+                        <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-100">
+                          {auction.creator.photoURL &&
+                          auction.creator.photoURL !==
+                            "https://via.placeholder.com/150?text=U" ? (
+                            <img
+                              src={auction.creator.photoURL}
+                              alt={auction.creator.displayName || "User"}
+                              className="h-full w-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.src =
+                                  "https://via.placeholder.com/40?text=U";
+                                e.currentTarget.onerror = null;
+                              }}
+                            />
+                          ) : (
+                            <div className="h-full w-full flex items-center justify-center bg-indigo-100">
+                              <span className="text-indigo-800 text-sm font-medium">
+                                {auction.creator.displayName
+                                  ?.charAt(0)
+                                  .toUpperCase() ||
+                                  auction.creator.email
+                                    ?.charAt(0)
+                                    .toUpperCase() ||
+                                  "U"}
+                              </span>
+                            </div>
+                          )}
+                        </div>
                         <div>
                           <p className="text-sm font-medium text-gray-900">
                             {auction.creator.displayName ||
@@ -306,33 +309,36 @@ const AuctionDetailPage: React.FC = () => {
                       </h3>
                       {auction.currentBidder ? (
                         <div className="mt-4 flex items-center space-x-3">
-                          {auction.currentBidder.photoURL &&
-                          auction.currentBidder.photoURL.trim() !== "" ? (
-                            <img
-                              src={auction.currentBidder.photoURL}
-                              alt={auction.currentBidder.displayName || "User"}
-                              className="h-10 w-10 rounded-full"
-                              onError={(e) => {
-                                e.currentTarget.src =
-                                  "https://via.placeholder.com/40?text=U";
-                                e.currentTarget.onerror = null;
-                              }}
-                            />
-                          ) : (
-                            <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                              <span className="text-indigo-800 font-medium">
-                                {auction.currentBidder.displayName
-                                  ? auction.currentBidder.displayName
-                                      .charAt(0)
-                                      .toUpperCase()
-                                  : auction.currentBidder.email
-                                  ? auction.currentBidder.email
-                                      .charAt(0)
-                                      .toUpperCase()
-                                  : "U"}
-                              </span>
-                            </div>
-                          )}
+                          <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-100">
+                            {auction.currentBidder.photoURL &&
+                            auction.currentBidder.photoURL !==
+                              "https://via.placeholder.com/150?text=U" ? (
+                              <img
+                                src={auction.currentBidder.photoURL}
+                                alt={
+                                  auction.currentBidder.displayName || "User"
+                                }
+                                className="h-full w-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.src =
+                                    "https://via.placeholder.com/40?text=U";
+                                  e.currentTarget.onerror = null;
+                                }}
+                              />
+                            ) : (
+                              <div className="h-full w-full flex items-center justify-center bg-indigo-100">
+                                <span className="text-indigo-800 text-sm font-medium">
+                                  {auction.currentBidder.displayName
+                                    ?.charAt(0)
+                                    .toUpperCase() ||
+                                    auction.currentBidder.email
+                                      ?.charAt(0)
+                                      .toUpperCase() ||
+                                    "U"}
+                                </span>
+                              </div>
+                            )}
+                          </div>
                           <div>
                             <p className="text-sm font-medium text-gray-900">
                               {auction.currentBidder.displayName ||
@@ -444,34 +450,35 @@ const AuctionDetailPage: React.FC = () => {
                           <tr key={index}>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
-                                {bid.userInfo?.photoURL &&
-                                bid.userInfo.photoURL.trim() !== "" ? (
-                                  <img
-                                    src={bid.userInfo.photoURL}
-                                    alt={bid.userInfo.displayName || "User"}
-                                    className="h-8 w-8 rounded-full mr-3"
-                                    onError={(e) => {
-                                      e.currentTarget.src =
-                                        "https://via.placeholder.com/32?text=U";
-                                      e.currentTarget.onerror = null;
-                                    }}
-                                  />
-                                ) : (
-                                  <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                                    <span className="text-indigo-800 text-xs">
-                                      {bid.userInfo?.displayName
-                                        ? bid.userInfo.displayName
-                                            .charAt(0)
-                                            .toUpperCase()
-                                        : bid.userInfo?.email
-                                        ? bid.userInfo.email
-                                            .charAt(0)
-                                            .toUpperCase()
-                                        : "U"}
-                                    </span>
-                                  </div>
-                                )}
-                                <div className="text-sm font-medium text-gray-900">
+                                <div className="h-8 w-8 rounded-full overflow-hidden bg-gray-100">
+                                  {bid.userInfo?.photoURL &&
+                                  bid.userInfo.photoURL !==
+                                    "https://via.placeholder.com/150?text=U" ? (
+                                    <img
+                                      src={bid.userInfo.photoURL}
+                                      alt={bid.userInfo.displayName || "User"}
+                                      className="h-full w-full object-cover"
+                                      onError={(e) => {
+                                        e.currentTarget.src =
+                                          "https://via.placeholder.com/32?text=U";
+                                        e.currentTarget.onerror = null;
+                                      }}
+                                    />
+                                  ) : (
+                                    <div className="h-full w-full flex items-center justify-center bg-indigo-100">
+                                      <span className="text-indigo-800 text-xs font-medium">
+                                        {bid.userInfo?.displayName
+                                          ?.charAt(0)
+                                          .toUpperCase() ||
+                                          bid.userInfo?.email
+                                            ?.charAt(0)
+                                            .toUpperCase() ||
+                                          "U"}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="ml-3 text-sm font-medium text-gray-900">
                                   {bid.userInfo?.displayName ||
                                     bid.userInfo?.email ||
                                     bid.userId ||

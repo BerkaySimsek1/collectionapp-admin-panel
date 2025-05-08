@@ -350,23 +350,35 @@ const GroupDetailPage: React.FC = () => {
                       className="col-span-1 flex flex-col text-center bg-white rounded-lg shadow divide-y divide-gray-200"
                     >
                       <div className="flex-1 flex flex-col p-8">
-                        <img
-                          className="w-32 h-32 flex-shrink-0 mx-auto rounded-full object-cover"
-                          src={
-                            member.photoURL && member.photoURL.trim() !== ""
-                              ? member.photoURL
-                              : "https://via.placeholder.com/150?text=U"
-                          }
-                          alt={
-                            member.displayName || member.username || "Kullanıcı"
-                          }
-                          onError={(e) => {
-                            console.log("Profil resmi yüklenirken hata:", e);
-                            e.currentTarget.src =
-                              "https://via.placeholder.com/150?text=U";
-                            e.currentTarget.onerror = null;
-                          }}
-                        />
+                        <div className="w-32 h-32 flex-shrink-0 mx-auto rounded-full overflow-hidden bg-gray-100">
+                          {member.photoURL &&
+                          member.photoURL !==
+                            "https://via.placeholder.com/150?text=U" ? (
+                            <img
+                              src={member.photoURL}
+                              alt={
+                                member.displayName ||
+                                member.username ||
+                                "Kullanıcı"
+                              }
+                              className="h-full w-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.src =
+                                  "https://via.placeholder.com/150?text=U";
+                                e.currentTarget.onerror = null;
+                              }}
+                            />
+                          ) : (
+                            <div className="h-full w-full flex items-center justify-center bg-indigo-100">
+                              <span className="text-indigo-800 text-2xl font-medium">
+                                {member.displayName?.charAt(0).toUpperCase() ||
+                                  member.username?.charAt(0).toUpperCase() ||
+                                  member.email?.charAt(0).toUpperCase() ||
+                                  "U"}
+                              </span>
+                            </div>
+                          )}
+                        </div>
                         <h3 className="mt-6 text-gray-900 text-sm font-medium">
                           {member.displayName ||
                             member.username ||
@@ -433,21 +445,33 @@ const GroupDetailPage: React.FC = () => {
                       className="col-span-1 flex flex-col text-center bg-white rounded-lg shadow divide-y divide-gray-200"
                     >
                       <div className="flex-1 flex flex-col p-8">
-                        <img
-                          className="w-32 h-32 flex-shrink-0 mx-auto rounded-full object-cover"
-                          src={
-                            admin.photoURL && admin.photoURL.trim() !== ""
-                              ? admin.photoURL
-                              : "https://via.placeholder.com/150?text=U"
-                          }
-                          alt={admin.displayName || admin.username || "Admin"}
-                          onError={(e) => {
-                            console.log("Profil resmi yüklenirken hata:", e);
-                            e.currentTarget.src =
-                              "https://via.placeholder.com/150?text=U";
-                            e.currentTarget.onerror = null;
-                          }}
-                        />
+                        <div className="w-32 h-32 flex-shrink-0 mx-auto rounded-full overflow-hidden bg-gray-100">
+                          {admin.photoURL &&
+                          admin.photoURL !==
+                            "https://via.placeholder.com/150?text=U" ? (
+                            <img
+                              src={admin.photoURL}
+                              alt={
+                                admin.displayName || admin.username || "Admin"
+                              }
+                              className="h-full w-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.src =
+                                  "https://via.placeholder.com/150?text=U";
+                                e.currentTarget.onerror = null;
+                              }}
+                            />
+                          ) : (
+                            <div className="h-full w-full flex items-center justify-center bg-indigo-100">
+                              <span className="text-indigo-800 text-2xl font-medium">
+                                {admin.displayName?.charAt(0).toUpperCase() ||
+                                  admin.username?.charAt(0).toUpperCase() ||
+                                  admin.email?.charAt(0).toUpperCase() ||
+                                  "U"}
+                              </span>
+                            </div>
+                          )}
+                        </div>
                         <h3 className="mt-6 text-gray-900 text-sm font-medium">
                           {admin.displayName || admin.username || admin.email}
                         </h3>
@@ -515,25 +539,34 @@ const GroupDetailPage: React.FC = () => {
                         {/* Gönderinin başlık ve kullanıcı bilgileri */}
                         <div className="flex items-center mb-4">
                           <div className="flex-shrink-0">
-                            <img
-                              className="h-10 w-10 rounded-full"
-                              src={
-                                post.user?.photoURL &&
-                                post.user.photoURL.trim() !== ""
-                                  ? post.user.photoURL
-                                  : "https://via.placeholder.com/40?text=U"
-                              }
-                              alt={post.user?.displayName || "Kullanıcı"}
-                              onError={(e) => {
-                                console.log(
-                                  "Profil resmi yüklenirken hata:",
-                                  e
-                                );
-                                e.currentTarget.src =
-                                  "https://via.placeholder.com/40?text=U";
-                                e.currentTarget.onerror = null;
-                              }}
-                            />
+                            <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-100">
+                              {post.user?.photoURL &&
+                              post.user.photoURL !==
+                                "https://via.placeholder.com/40?text=U" ? (
+                                <img
+                                  src={post.user.photoURL}
+                                  alt={post.user?.displayName || "Kullanıcı"}
+                                  className="h-full w-full object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.src =
+                                      "https://via.placeholder.com/40?text=U";
+                                    e.currentTarget.onerror = null;
+                                  }}
+                                />
+                              ) : (
+                                <div className="h-full w-full flex items-center justify-center bg-indigo-100">
+                                  <span className="text-indigo-800 text-sm font-medium">
+                                    {post.user?.displayName
+                                      ?.charAt(0)
+                                      .toUpperCase() ||
+                                      post.user?.email
+                                        ?.charAt(0)
+                                        .toUpperCase() ||
+                                      "U"}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
                           </div>
                           <div className="ml-3">
                             <p className="text-sm font-medium text-gray-900">
@@ -565,13 +598,9 @@ const GroupDetailPage: React.FC = () => {
                               alt="Gönderi görseli"
                               className="rounded-lg w-full object-contain h-auto max-h-96 border border-gray-200"
                               onError={(e) => {
-                                console.error(
-                                  "Görsel yüklenirken hata oluştu:",
-                                  post.imageUrl
-                                );
                                 e.currentTarget.src =
                                   "https://via.placeholder.com/500x300?text=Görsel+Yüklenemedi";
-                                e.currentTarget.onerror = null; // Sonsuz döngüyü önlemek için
+                                e.currentTarget.onerror = null;
                               }}
                             />
                           </div>
@@ -601,28 +630,37 @@ const GroupDetailPage: React.FC = () => {
                                 .map((comment: any, index: number) => (
                                   <div key={index} className="flex">
                                     <div className="flex-shrink-0 mr-3">
-                                      <img
-                                        className="h-8 w-8 rounded-full"
-                                        src={
-                                          comment.user?.photoURL &&
-                                          comment.user.photoURL.trim() !== ""
-                                            ? comment.user.photoURL
-                                            : "https://via.placeholder.com/32?text=U"
-                                        }
-                                        alt={
-                                          comment.user?.displayName ||
-                                          "Kullanıcı"
-                                        }
-                                        onError={(e) => {
-                                          console.log(
-                                            "Profil resmi yüklenirken hata:",
-                                            e
-                                          );
-                                          e.currentTarget.src =
-                                            "https://via.placeholder.com/32?text=U";
-                                          e.currentTarget.onerror = null;
-                                        }}
-                                      />
+                                      <div className="h-8 w-8 rounded-full overflow-hidden bg-gray-100">
+                                        {comment.user?.photoURL &&
+                                        comment.user.photoURL !==
+                                          "https://via.placeholder.com/32?text=U" ? (
+                                          <img
+                                            src={comment.user.photoURL}
+                                            alt={
+                                              comment.user?.displayName ||
+                                              "Kullanıcı"
+                                            }
+                                            className="h-full w-full object-cover"
+                                            onError={(e) => {
+                                              e.currentTarget.src =
+                                                "https://via.placeholder.com/32?text=U";
+                                              e.currentTarget.onerror = null;
+                                            }}
+                                          />
+                                        ) : (
+                                          <div className="h-full w-full flex items-center justify-center bg-indigo-100">
+                                            <span className="text-indigo-800 text-xs font-medium">
+                                              {comment.user?.displayName
+                                                ?.charAt(0)
+                                                .toUpperCase() ||
+                                                comment.user?.email
+                                                  ?.charAt(0)
+                                                  .toUpperCase() ||
+                                                "U"}
+                                            </span>
+                                          </div>
+                                        )}
+                                      </div>
                                     </div>
                                     <div className="flex-1 bg-gray-50 rounded-lg px-4 py-2">
                                       <div className="flex items-center justify-between">

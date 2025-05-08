@@ -92,8 +92,8 @@ export const getAllUsers = async (pageSize = 10, lastDocIndex: number | null = n
           bio: userData.bio || "",
           location: userData.location || "",
           interests: userData.interests || [],
-          followersCount: userData.followersCount || 0,
-          followingCount: userData.followingCount || 0,
+          followersCount: Array.isArray(userData.followers) ? userData.followers.length : 0,
+          followingCount: Array.isArray(userData.following) ? userData.following.length : 0,
           phone: userData.phone || "",
         };
         
@@ -255,8 +255,10 @@ export const getUserById = async (uid: string): Promise<User | null> => {
         bio: userData.bio || "",
         location: userData.location || "",
         interests: userData.interests || [],
-        followersCount: userData.followersCount || 0,
-        followingCount: userData.followingCount || 0,
+        followersCount: Array.isArray(userData.followers) ? userData.followers.length : 0,
+        followingCount: Array.isArray(userData.following) ? userData.following.length : 0,
+        followers: Array.isArray(userData.followers) ? userData.followers : [],
+        following: Array.isArray(userData.following) ? userData.following : [],
         phone: userData.phone || "",
       };
   

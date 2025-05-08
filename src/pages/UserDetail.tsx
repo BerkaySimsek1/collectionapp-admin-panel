@@ -27,6 +27,13 @@ const UserDetail: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Takipçi ve takip edilen listelerini göstermek için state'ler
+  const [showFollowers, setShowFollowers] = useState(false);
+  const [showFollowing, setShowFollowing] = useState(false);
+  const [followers, setFollowers] = useState<User[]>([]);
+  const [following, setFollowing] = useState<User[]>([]);
+  const [loadingLists, setLoadingLists] = useState(false);
+
   // Load user data
   useEffect(() => {
     const fetchUser = async () => {
@@ -75,6 +82,61 @@ const UserDetail: React.FC = () => {
 
     fetchUser();
   }, [id, params]);
+
+  // Takipçi listesini yükle
+  const loadFollowers = async () => {
+    if (!user) return;
+    setLoadingLists(true);
+    try {
+      console.log("Takipçiler yükleniyor, user:", user);
+      console.log("Takipçi ID'leri:", user.followers);
+
+      const followersList = await Promise.all(
+        (user.followers || []).map(async (followerId: string) => {
+          console.log("Takipçi ID'si:", followerId);
+          const follower = await getUserById(followerId);
+          console.log("Takipçi verisi:", follower);
+          return follower;
+        })
+      );
+      console.log("Tüm takipçi listesi:", followersList);
+      setFollowers(followersList.filter((f): f is User => f !== null));
+    } catch (error) {
+      console.error("Takipçiler yüklenirken hata:", error);
+    }
+    setLoadingLists(false);
+  };
+
+  // Takip edilen listesini yükle
+  const loadFollowing = async () => {
+    if (!user) return;
+    setLoadingLists(true);
+    try {
+      console.log("Takip edilenler yükleniyor, user:", user);
+      console.log("Takip edilen ID'leri:", user.following);
+
+      const followingList = await Promise.all(
+        (user.following || []).map(async (followingId: string) => {
+          console.log("Takip edilen ID'si:", followingId);
+          const followingUser = await getUserById(followingId);
+          console.log("Takip edilen verisi:", followingUser);
+          return followingUser;
+        })
+      );
+      console.log("Tüm takip edilen listesi:", followingList);
+      setFollowing(followingList.filter((f): f is User => f !== null));
+    } catch (error) {
+      console.error("Takip edilenler yüklenirken hata:", error);
+    }
+    setLoadingLists(false);
+  };
+
+  // Kullanıcı detayına git
+  const handleUserClick = (userId: string) => {
+    setShowFollowers(false);
+    setShowFollowing(false);
+    navigate(`/users/${userId}`);
+  };
 
   // Handle user deletion
   const handleDeleteUser = async () => {
@@ -398,9 +460,17 @@ const UserDetail: React.FC = () => {
                     Takipçi Sayısı
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {user.followersCount !== undefined
-                      ? user.followersCount
-                      : 0}
+                    <button
+                      onClick={() => {
+                        setShowFollowers(true);
+                        loadFollowers();
+                      }}
+                      className="text-indigo-600 hover:text-indigo-900"
+                    >
+                      {user.followersCount !== undefined
+                        ? user.followersCount
+                        : 0}
+                    </button>
                   </dd>
                 </div>
                 <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -408,9 +478,17 @@ const UserDetail: React.FC = () => {
                     Takip Edilen Sayısı
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {user.followingCount !== undefined
-                      ? user.followingCount
-                      : 0}
+                    <button
+                      onClick={() => {
+                        setShowFollowing(true);
+                        loadFollowing();
+                      }}
+                      className="text-indigo-600 hover:text-indigo-900"
+                    >
+                      {user.followingCount !== undefined
+                        ? user.followingCount
+                        : 0}
+                    </button>
                   </dd>
                 </div>
                 <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -456,6 +534,172 @@ const UserDetail: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Takipçiler Modal */}
+      {showFollowers && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-lg w-full max-h-[80vh] overflow-hidden">
+            <div className="p-4 border-b">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-medium text-gray-900">
+                  Takipçiler
+                </h3>
+                <button
+                  onClick={() => setShowFollowers(false)}
+                  className="text-gray-400 hover:text-gray-500"
+                >
+                  <span className="sr-only">Kapat</span>
+                  <svg
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div className="p-4 overflow-y-auto max-h-[calc(80vh-8rem)]">
+              {loadingLists ? (
+                <div className="flex justify-center items-center h-32">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
+                </div>
+              ) : followers.length > 0 ? (
+                <ul className="divide-y divide-gray-200">
+                  {followers.map((follower) => (
+                    <li
+                      key={follower.uid}
+                      className="py-3 cursor-pointer hover:bg-gray-50"
+                      onClick={() => handleUserClick(follower.uid)}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="flex-shrink-0 h-10 w-10">
+                          {follower.photoURL ? (
+                            <img
+                              className="h-10 w-10 rounded-full object-cover"
+                              src={follower.photoURL}
+                              alt={follower.displayName || "Kullanıcı"}
+                            />
+                          ) : (
+                            <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                              <span className="text-indigo-800 font-medium">
+                                {follower.displayName
+                                  ?.charAt(0)
+                                  .toUpperCase() || "U"}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">
+                            {follower.displayName || "İsimsiz Kullanıcı"}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {follower.email}
+                          </p>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-center text-gray-500 py-4">
+                  Takipçi bulunmuyor
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Takip Edilenler Modal */}
+      {showFollowing && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-lg w-full max-h-[80vh] overflow-hidden">
+            <div className="p-4 border-b">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-medium text-gray-900">
+                  Takip Edilenler
+                </h3>
+                <button
+                  onClick={() => setShowFollowing(false)}
+                  className="text-gray-400 hover:text-gray-500"
+                >
+                  <span className="sr-only">Kapat</span>
+                  <svg
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div className="p-4 overflow-y-auto max-h-[calc(80vh-8rem)]">
+              {loadingLists ? (
+                <div className="flex justify-center items-center h-32">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
+                </div>
+              ) : following.length > 0 ? (
+                <ul className="divide-y divide-gray-200">
+                  {following.map((followingUser) => (
+                    <li
+                      key={followingUser.uid}
+                      className="py-3 cursor-pointer hover:bg-gray-50"
+                      onClick={() => handleUserClick(followingUser.uid)}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="flex-shrink-0 h-10 w-10">
+                          {followingUser.photoURL ? (
+                            <img
+                              className="h-10 w-10 rounded-full object-cover"
+                              src={followingUser.photoURL}
+                              alt={followingUser.displayName || "Kullanıcı"}
+                            />
+                          ) : (
+                            <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                              <span className="text-indigo-800 font-medium">
+                                {followingUser.displayName
+                                  ?.charAt(0)
+                                  .toUpperCase() || "U"}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">
+                            {followingUser.displayName || "İsimsiz Kullanıcı"}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {followingUser.email}
+                          </p>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-center text-gray-500 py-4">
+                  Takip edilen kullanıcı bulunmuyor
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };

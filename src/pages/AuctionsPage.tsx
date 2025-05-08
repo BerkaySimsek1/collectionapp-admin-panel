@@ -362,34 +362,35 @@ const AuctionsPage: React.FC = () => {
                       <div className="text-sm text-gray-900">
                         {auction.creator ? (
                           <div className="flex items-center">
-                            {auction.creator.photoURL &&
-                            auction.creator.photoURL.trim() !== "" ? (
-                              <img
-                                src={auction.creator.photoURL}
-                                alt={auction.creator.displayName || "User"}
-                                className="h-6 w-6 rounded-full mr-2"
-                                onError={(e) => {
-                                  e.currentTarget.src =
-                                    "https://via.placeholder.com/40?text=U";
-                                  e.currentTarget.onerror = null;
-                                }}
-                              />
-                            ) : (
-                              <div className="h-6 w-6 rounded-full bg-indigo-100 flex items-center justify-center mr-2">
-                                <span className="text-indigo-800 text-xs font-medium">
-                                  {auction.creator.displayName
-                                    ? auction.creator.displayName
-                                        .charAt(0)
-                                        .toUpperCase()
-                                    : auction.creator.email
-                                    ? auction.creator.email
-                                        .charAt(0)
-                                        .toUpperCase()
-                                    : "U"}
-                                </span>
-                              </div>
-                            )}
-                            <span>
+                            <div className="h-8 w-8 rounded-full overflow-hidden bg-gray-100">
+                              {auction.creator.photoURL &&
+                              auction.creator.photoURL !==
+                                "https://via.placeholder.com/150?text=U" ? (
+                                <img
+                                  src={auction.creator.photoURL}
+                                  alt={auction.creator.displayName || "User"}
+                                  className="h-full w-full object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.src =
+                                      "https://via.placeholder.com/32?text=U";
+                                    e.currentTarget.onerror = null;
+                                  }}
+                                />
+                              ) : (
+                                <div className="h-full w-full flex items-center justify-center bg-indigo-100">
+                                  <span className="text-indigo-800 text-xs font-medium">
+                                    {auction.creator.displayName
+                                      ?.charAt(0)
+                                      .toUpperCase() ||
+                                      auction.creator.email
+                                        ?.charAt(0)
+                                        .toUpperCase() ||
+                                      "U"}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            <span className="ml-2 text-sm text-gray-900">
                               {auction.creator.displayName ||
                                 auction.creator.email}
                             </span>

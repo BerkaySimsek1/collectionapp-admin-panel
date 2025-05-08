@@ -16,6 +16,7 @@ import GroupsPage from "./pages/GroupsPage";
 import GroupDetailPage from "./pages/GroupDetailPage";
 import "./App.css";
 import PrivateRoute from "./components/PrivateRoute";
+import ReportsPage from "./pages/ReportsPage";
 
 /**
  * Ana uygulama bileşeni
@@ -94,7 +95,7 @@ const App: React.FC = () => {
             path="/reports"
             element={
               <PrivateRoute>
-                <div>Raporlar Sayfası (Yapım Aşamasında)</div>
+                <ReportsPage />
               </PrivateRoute>
             }
           />

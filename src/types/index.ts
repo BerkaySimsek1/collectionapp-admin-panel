@@ -33,6 +33,8 @@ export interface User {
   interests?: string[];
   followersCount?: number;
   followingCount?: number;
+  followers?: string[];
+  following?: string[];
 }
 
 // Bid (Teklif) tipi
@@ -73,13 +75,36 @@ export interface UserGroup {
 // Rapor tipi
 export interface Report {
   id: string;
-  userId: string;
+  reporterId: string;
   reason: string;
   description: string;
   status: 'pending' | 'resolved' | 'rejected';
-  createdAt: string;
-  resolvedAt?: string;
+  createdAt: string | number | Date;
+  resolvedAt?: string | number | Date;
   resolvedBy?: string;
+}
+
+// Kullanıcı raporu
+export interface UserReport extends Report {
+  reportedId: string;
+  reportedUser?: User;
+  reporter?: User;
+}
+
+// Grup raporu
+export interface GroupReport extends Report {
+  reportedId: string;
+  reportedGroup?: UserGroup;
+  reporter?: User;
+}
+
+// Açık artırma raporu
+export interface AuctionReport extends Report {
+  reportedId: string;
+  auctionId: string;
+  reportedAuction?: Auction;
+  reportedUser?: User;
+  reporter?: User;
 }
 
 // Dashboard istatistikleri tipi
