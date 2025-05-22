@@ -14,27 +14,21 @@ export interface Admin {
 export interface User {
   uid: string;
   email: string;
-  displayName?: string;
-  photoURL?: string;
-  createdAt?: Date | string | number;
-  lastLogin?: Date | string;
-  lastActive?: Date | string | null;
-  isActive?: boolean;
-  isBanned?: boolean;
-  banStartDate?: any;
-  banEndDate?: any;
-  
-  username?: string;
-  firstName?: string;
-  lastName?: string;
+  displayName: string;
+  photoURL: string;
+  isActive?: boolean; // Add this line
+  isBanned: boolean;
+  createdAt: Date;
+  lastActive: Date | null;
+  username: string;
   bio?: string;
-  phone?: string;
   location?: string;
   interests?: string[];
   followersCount?: number;
   followingCount?: number;
   followers?: string[];
   following?: string[];
+  phone?: string;
 }
 
 // Bid (Teklif) tipi

@@ -5,7 +5,8 @@ import {
   getUserById,
   deleteUser,
   updateUserBanStatus,
-} from "../services/userService";
+  updateUserStatus, // Import the new function
+} from "../services/userService"; // Make sure userService.ts exports this
 import { User } from "../types";
 
 // @ts-ignore
@@ -211,6 +212,7 @@ const UserDetail: React.FC = () => {
       try {
         const success = await updateUserBanStatus(user.uid, !isBanned);
         if (success) {
+          // Update local state immediately
           setUser((prevUser) => {
             if (!prevUser) return null;
             return { ...prevUser, isBanned: !prevUser.isBanned };
@@ -237,38 +239,74 @@ const UserDetail: React.FC = () => {
     }
   };
 
-  // Format date
-  const formatDate = (date: Date | string | number | null | undefined) => {
-    if (!date) return "Belirtilmemiş";
+  // Handle user activation/deactivation
+  const handleToggleActiveStatus = async () => {
+    if (!user) return;
 
-    try {
-      const dateObj =
-        typeof date === "string"
-          ? new Date(date)
-          : date instanceof Date
-          ? date
-          : typeof date === "number"
-          ? new Date(date)
-          : null;
+    const newStatus = user.isActive === false ? true : false; // Toggle logic
+    const title = newStatus ? "Kullanıcıyı Aktif Et" : "Kullanıcıyı Pasif Et";
+    const text = newStatus
+      ? `Bu kullanıcıyı aktif etmek istediğinizden emin misiniz?`
+      : `Bu kullanıcıyı pasif etmek istediğinizden emin misiniz? Kullanıcı uygulamaya giriş yapamayacaktır.`;
+    const confirmButtonText = newStatus ? "Evet, Aktif Et" : "Evet, Pasif Et";
+    const confirmButtonColor = newStatus ? "#28a745" : "#ffc107"; // Green for activate, Amber for deactivate
 
-      if (!dateObj || isNaN(dateObj.getTime())) {
-        console.error("Geçersiz tarih formatı:", date);
-        return "Geçersiz tarih";
+    const result = await Swal.fire({
+      title,
+      text,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor,
+      cancelButtonColor: "#6c757d",
+      confirmButtonText,
+      cancelButtonText: "İptal",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const success = await updateUserStatus(user.uid, newStatus);
+        if (success) {
+          // Update local state immediately
+          setUser((prevUser) => {
+            if (!prevUser) return null;
+            return { ...prevUser, isActive: newStatus };
+          });
+
+          Swal.fire({
+            title: "Başarılı!",
+            text: newStatus
+              ? "Kullanıcı başarıyla aktif edildi."
+              : "Kullanıcı başarıyla pasif edildi.",
+            icon: "success",
+          });
+        } else {
+          throw new Error("İşlem başarısız oldu");
+        }
+      } catch (error) {
+        console.error(
+          "Kullanıcı aktif/pasif durumu güncellenirken hata:",
+          error
+        );
+        Swal.fire({
+          title: "Hata!",
+          text: "İşlem sırasında bir hata oluştu. Lütfen tekrar deneyin.",
+          icon: "error",
+        });
       }
-
-      return dateObj.toLocaleString("tr-TR", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch (error) {
-      console.error("Tarih biçimlendirme hatası:", error, date);
-      return "Geçersiz tarih";
     }
   };
 
+  const formatDate = (date: Date | null) =>
+    date
+      ? date.toLocaleString("tr-TR", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        })
+      : "Belirtilmemiş";
   if (loading) {
     return (
       <Layout>
@@ -368,11 +406,28 @@ const UserDetail: React.FC = () => {
                 </div>
               </div>
               <div className="flex space-x-2">
+                {/* New Activation/Deactivation Button */}
+                <button
+                  onClick={handleToggleActiveStatus}
+                  className={`px-3 py-1 rounded-md ${
+                    user.isActive === false
+                      ? "bg-green-100 text-green-800 hover:bg-green-200"
+                      : "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
+                  }`}
+                  aria-label={
+                    user.isActive === false
+                      ? "Kullanıcıyı aktif et"
+                      : "Kullanıcıyı pasif et"
+                  }
+                >
+                  {user.isActive === false ? "Aktif Et" : "Pasif Et"}
+                </button>
+
                 <button
                   onClick={handleBanUser}
                   className={`px-3 py-1 rounded-md ${
                     user.isBanned
-                      ? "bg-green-100 text-green-800 hover:bg-green-200"
+                      ? "bg-indigo-100 text-indigo-800 hover:bg-indigo-200" // Changed color for Unban to avoid red conflict
                       : "bg-red-100 text-red-800 hover:bg-red-200"
                   }`}
                   aria-label={
@@ -537,7 +592,9 @@ const UserDetail: React.FC = () => {
 
       {/* Takipçiler Modal */}
       {showFollowers && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
+          {" "}
+          {/* Added z-50 */}
           <div className="bg-white rounded-lg max-w-lg w-full max-h-[80vh] overflow-hidden">
             <div className="p-4 border-b">
               <div className="flex justify-between items-center">
@@ -620,7 +677,9 @@ const UserDetail: React.FC = () => {
 
       {/* Takip Edilenler Modal */}
       {showFollowing && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
+          {" "}
+          {/* Added z-50 */}
           <div className="bg-white rounded-lg max-w-lg w-full max-h-[80vh] overflow-hidden">
             <div className="p-4 border-b">
               <div className="flex justify-between items-center">

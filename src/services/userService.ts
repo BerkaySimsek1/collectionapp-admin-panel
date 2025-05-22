@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, query, where, updateDoc, deleteDoc, Timestamp, orderBy, limit, startAfter, serverTimestamp, QueryDocumentSnapshot } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, where, updateDoc, deleteDoc, orderBy, limit, startAfter, QueryDocumentSnapshot, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { User, Auction, UserGroup } from '../types';
 
@@ -179,105 +179,108 @@ const getProfileImageUrl = (userData: any): string => {
  * @param uid User ID
  */
 export const getUserById = async (uid: string): Promise<User | null> => {
-  try {
-    console.log(`getUserById çağrıldı: uid=${uid}, tip=${typeof uid}, uzunluk=${uid?.length}`);
-    
-    if (!uid || typeof uid !== 'string' || uid.trim() === '') {
-      console.error("getUserById: uid parametresi geçersiz:", uid);
-      return null;
-    }
-    
-    const userRef = doc(db, "users", uid);
-    console.log(`Firestore'dan kullanıcı belgesi alınıyor: ${uid}`);
-    
-    const userSnapshot = await getDoc(userRef);
-    console.log(`Kullanıcı belgesi alındı, belge var mı: ${userSnapshot.exists()}`);
+  if (!uid.trim()) return null;
 
-    if (!userSnapshot.exists()) {
-      console.log(`Kullanıcı bulunamadı: ${uid}`);
-      return null;
-    }
+  const snap = await getDoc(doc(db, "users", uid));
+  if (!snap.exists()) return null;
 
-    const userData = userSnapshot.data();
-    console.log(`Kullanıcı verisi alındı: ${uid}`, userData);
-    
-    if (!userData) {
-      console.error(`Kullanıcı verisi boş: ${uid}`);
-      return null;
-    }
-    
-    // Profil fotoğrafı kontrolü - farklı alanlarda olabilir
-    const photoURL = getProfileImageUrl(userData);
-    
-    // Tarih alanlarını kontrol et
-    let createdAt = null;
-    try {
-      if (userData.createdAt) {
-        createdAt = typeof userData.createdAt.toDate === 'function' 
-          ? userData.createdAt.toDate() 
-          : new Date(userData.createdAt);
-      } else if (userData.created_at) {
-        createdAt = typeof userData.created_at.toDate === 'function'
-          ? userData.created_at.toDate()
-          : new Date(userData.created_at);
+  const data = snap.data(); // Firestore'dan gelen ham veri
+
+  // Detaylı loglama (Geliştirme sırasında sorunu anlamak için)
+  console.log('[getUserById] Ham snap.data():', JSON.parse(JSON.stringify(data))); // Verinin yapısını görmek için
+
+  let processedCreatedAt: Date | null = null;
+  const createdAtField = data.createdAt || data.created_at; // Hem createdAt hem de created_at kontrolü
+
+  if (createdAtField) {
+    console.log('[getUserById] Bulunan createdAtField:', createdAtField, typeof createdAtField);
+    if (createdAtField instanceof Timestamp) {
+      processedCreatedAt = createdAtField.toDate();
+      console.log('[getUserById] Timestamp olarak işlendi:', processedCreatedAt);
+    } else if (typeof createdAtField === 'string') {
+      // ISO string veya parse edilebilir bir string ise Date'e çevir
+      const dateCandidate = new Date(createdAtField);
+      if (!isNaN(dateCandidate.getTime())) { // Geçerli bir tarih mi kontrolü
+        processedCreatedAt = dateCandidate;
+        console.log('[getUserById] String olarak işlendi:', processedCreatedAt);
+      } else {
+        console.warn('[getUserById] createdAtField string ama geçerli bir tarihe dönüştürülemedi:', createdAtField);
+        processedCreatedAt = new Date(); // Hatalı durumda varsayılan
       }
-    } catch (dateErr) {
-      console.error("createdAt alanı işlenirken hata:", dateErr);
-      createdAt = new Date();
-    }
-    
-    let lastActive = null;
-    try {
-      if (userData.lastActive) {
-        lastActive = typeof userData.lastActive.toDate === 'function'
-          ? userData.lastActive.toDate()
-          : new Date(userData.lastActive);
-      } else if (userData.last_active) {
-        lastActive = typeof userData.last_active.toDate === 'function'
-          ? userData.last_active.toDate()
-          : new Date(userData.last_active);
+    } else if (typeof createdAtField === 'object' && createdAtField !== null &&
+               typeof createdAtField.seconds === 'number' && typeof createdAtField.nanoseconds === 'number') {
+      // Eğer {seconds, nanoseconds} yapısında bir obje ise (instanceof çalışmasa bile)
+      try {
+        processedCreatedAt = new Timestamp(createdAtField.seconds, createdAtField.nanoseconds).toDate();
+        console.log('[getUserById] {seconds, nanoseconds} objesi olarak işlendi:', processedCreatedAt);
+      } catch (e) {
+        console.error('[getUserById] createdAtField {seconds, nanoseconds} objesinden Timestamp oluşturulamadı:', e);
+        processedCreatedAt = new Date(); // Hatalı durumda varsayılan
       }
-    } catch (dateErr) {
-      console.error("lastActive alanı işlenirken hata:", dateErr);
+    } else {
+      console.warn('[getUserById] createdAtField tanınmayan bir formatta:', createdAtField);
+      processedCreatedAt = new Date(); // Tanınmayan formatta varsayılan
     }
-    
-    try {
-      const user: User = {
-        uid: userSnapshot.id,
-        email: userData.email || "",
-        displayName: userData.displayName || userData.username || "",
-        photoURL: photoURL,
-        isActive: userData.isActive !== false,
-        isBanned: userData.isBanned === true,
-        createdAt: createdAt || new Date(),
-        lastActive: lastActive,
-        username: userData.username || "",
-        bio: userData.bio || "",
-        location: userData.location || "",
-        interests: userData.interests || [],
-        followersCount: Array.isArray(userData.followers) ? userData.followers.length : 0,
-        followingCount: Array.isArray(userData.following) ? userData.following.length : 0,
-        followers: Array.isArray(userData.followers) ? userData.followers : [],
-        following: Array.isArray(userData.following) ? userData.following : [],
-        phone: userData.phone || "",
-      };
-  
-      console.log(`İşlenmiş kullanıcı verisi:`, user);
-      return user;
-    } catch (parseErr) {
-      console.error("Kullanıcı nesnesi oluşturulurken hata:", parseErr);
-      return null;
-    }
-  } catch (error) {
-    console.error("Kullanıcı getirilirken hata:", error);
-    throw new Error("Kullanıcı verisi alınamadı: " + error);
+  } else {
+    console.log('[getUserById] createdAt veya created_at alanı bulunamadı.');
+    processedCreatedAt = new Date(); // Yoksa varsayılan (veya null bırakabilirsiniz)
   }
+
+  let processedLastActive: Date | null = null;
+  const lastActiveField = data.lastActive || data.last_active;
+
+  if (lastActiveField) {
+    console.log('[getUserById] Bulunan lastActiveField:', lastActiveField, typeof lastActiveField);
+    if (lastActiveField instanceof Timestamp) {
+      processedLastActive = lastActiveField.toDate();
+    } else if (typeof lastActiveField === 'string') {
+      const dateCandidate = new Date(lastActiveField);
+      if (!isNaN(dateCandidate.getTime())) {
+        processedLastActive = dateCandidate;
+      } else {
+         console.warn('[getUserById] lastActiveField string ama geçerli bir tarihe dönüştürülemedi:', lastActiveField);
+      }
+    } else if (typeof lastActiveField === 'object' && lastActiveField !== null &&
+               typeof lastActiveField.seconds === 'number' && typeof lastActiveField.nanoseconds === 'number') {
+      try {
+        processedLastActive = new Timestamp(lastActiveField.seconds, lastActiveField.nanoseconds).toDate();
+      } catch (e) {
+         console.error('[getUserById] lastActiveField {seconds, nanoseconds} objesinden Timestamp oluşturulamadı:', e);
+      }
+    } else if (lastActiveField !== null) { // lastActive null olabilir, bu bir hata değil
+        console.warn('[getUserById] lastActiveField tanınmayan bir formatta:', lastActiveField);
+    }
+  } else {
+      console.log('[getUserById] lastActive veya last_active alanı bulunamadı (veya null).');
+  }
+
+  return {
+    uid: snap.id,
+    email: data.email || "",
+    displayName: data.displayName || data.username || "",
+    // photoURL: data.photoURL || data.profileImageUrl || data.profilePic || "", // getProfileImageUrl kullanmak daha iyi
+    photoURL: getProfileImageUrl(data), // getProfileImageUrl fonksiyonunuzu kullanın
+    isActive: data.isActive !== false,
+    isBanned: data.isBanned === true,
+    createdAt: processedCreatedAt, // İşlenmiş Date nesnesini kullanın
+    lastActive: processedLastActive, // İşlenmiş Date nesnesini kullanın (null olabilir)
+    username: data.username || "",
+    bio: data.bio || "",
+    location: data.location || "",
+    interests: data.interests || [],
+    followersCount: Array.isArray(data.followers) ? data.followers.length : 0,
+    followingCount: Array.isArray(data.following) ? data.following.length : 0,
+    followers: Array.isArray(data.followers) ? data.followers : [],
+    following: Array.isArray(data.following) ? data.following : [],
+    phone: data.phone || "",
+  };
 };
+// ... (your existing imports and other functions)
 
 /**
- * Update user status
+ * Update user status (activate/deactivate)
  * @param uid User ID
- * @param isActive New status
+ * @param isActive New status (true for active, false for deactivated)
  */
 export const updateUserStatus = async (
   uid: string,
@@ -286,13 +289,14 @@ export const updateUserStatus = async (
   try {
     const userRef = doc(db, "users", uid);
     await updateDoc(userRef, {
-      isActive,
-      updatedAt: serverTimestamp(),
+      isActive, // This directly sets the isActive field in Firestore
+      updatedAt: serverTimestamp(), // Good practice to track when it was updated
     });
 
+    console.log(`User ${uid} isActive status set to ${isActive} successfully.`);
     return true;
   } catch (error) {
-    console.error("Kullanıcı durumu güncellenirken hata:", error);
+    console.error("Error updating user status:", error);
     return false;
   }
 };
@@ -476,4 +480,4 @@ export const getUserGroups = async (uid: string): Promise<UserGroup[]> => {
     console.error('Error fetching user groups:', error);
     return [];
   }
-}; 
+};
